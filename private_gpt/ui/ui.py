@@ -309,6 +309,7 @@ class PrivateGptUi:
                 password_input = gr.Textbox(
                         placeholder="",
                         label="Passwort",
+                        lines=1,
                         interactive=True,
                         render=False,
                     )
