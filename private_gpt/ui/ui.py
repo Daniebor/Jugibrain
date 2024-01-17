@@ -306,7 +306,12 @@ class PrivateGptUi:
             with gr.Row():
                 gr.HTML("<h2>Login to PrivateGPT</h2>")
             with gr.Row():
-                password_input = gr.Password(label="Enter Password")
+                password_input = gr.Textbox(
+                        placeholder="",
+                        label="Passwort",
+                        interactive=True,
+                        render=False,
+                    )
                 submit_button = gr.Button("Login")
             with gr.Row():
                 login_result = gr.Label()
