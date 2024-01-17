@@ -301,26 +301,22 @@ class PrivateGptUi:
         else:
             return False
 
+    @staticmethod
     def build_login_interface():
         with gr.Blocks() as login_blocks:
             with gr.Row():
                 gr.HTML("<h2>Login to PrivateGPT</h2>")
             with gr.Row():
-                password_input = gr.Textbox(
-                        placeholder="",
-                        label="Passwort",
-                        lines=1,
-                        interactive=True,
-                        render=False,
-                    )
+                password_input = gr.Textbox(label="Enter Password", type="password")
                 submit_button = gr.Button("Login")
             with gr.Row():
                 login_result = gr.Label()
 
             def on_submit(password):
-                if PrivateGptUi.check_password(password):
+                if password == PASSWORD:
                     login_result.update("Access Granted")
-                    return ui.get_ui_blocks()
+                    # Proceed to main UI
+                    # You may need additional logic here to transition to the main UI
                 else:
                     login_result.update("Access Denied")
 
@@ -332,7 +328,7 @@ class PrivateGptUi:
             if self._ui_block is None:
                 self._ui_block = self._build_ui_blocks()
             return self._ui_block
-
+    
     def mount_in_app(self, app: FastAPI, path: str) -> None:
         login_interface = PrivateGptUi.build_login_interface()
         gr.mount_gradio_app(app, login_interface, path=path)
