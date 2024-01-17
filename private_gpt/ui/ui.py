@@ -302,23 +302,29 @@ class PrivateGptUi:
             return False
 
     @staticmethod
-    def build_login_interface():
+    def build_login_interface(main_ui_blocks):
+        is_logged_in = False
+
         with gr.Blocks() as login_blocks:
-            with gr.Row():
+            with gr.Row(visible=lambda: not is_logged_in):
                 gr.HTML("<h2>Login to PrivateGPT</h2>")
-            with gr.Row():
                 password_input = gr.Textbox(label="Enter Password", type="password")
                 submit_button = gr.Button("Login")
-            with gr.Row():
-                login_result = gr.Label()
+                login_result = gr.Text()
+
+            # Place the main UI components here but initially set them to invisible
+            with gr.Row(visible=lambda: is_logged_in):
+                # Assuming _build_ui_blocks() returns a gr.Blocks object
+                main_ui_blocks()
 
             def on_submit(password):
+                nonlocal is_logged_in
                 if password == PASSWORD:
-                    login_result.update("Access Granted")
-                    # Proceed to main UI
-                    # You may need additional logic here to transition to the main UI
+                    is_logged_in = True
+                    login_result.update("")
+                    return "Login successful. Accessing main UI..."
                 else:
-                    login_result.update("Access Denied")
+                    return "Access Denied"
 
             submit_button.click(on_submit, inputs=password_input, outputs=login_result)
 
@@ -330,11 +336,13 @@ class PrivateGptUi:
             return self._ui_block
     
     def mount_in_app(self, app: FastAPI, path: str) -> None:
-        login_interface = PrivateGptUi.build_login_interface()
+        main_ui_blocks = self.get_ui_blocks
+        login_interface = PrivateGptUi.build_login_interface(main_ui_blocks)
         gr.mount_gradio_app(app, login_interface, path=path)
 
 
 if __name__ == "__main__":
     ui = global_injector.get(PrivateGptUi)
-    _login_blocks = PrivateGptUi.build_login_interface()
+    _ui_blocks = ui.get_ui_blocks()
+    _login_blocks = PrivateGptUi.build_login_interface(_ui_blocks)
     _login_blocks.launch(debug=False, show_api=False)
