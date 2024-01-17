@@ -295,41 +295,41 @@ class PrivateGptUi:
         return blocks
     
 
-def check_password(input_password: str):
-    if input_password == PASSWORD:
-        return True
-    else:
-        return False
+    def check_password(input_password: str):
+        if input_password == PASSWORD:
+            return True
+        else:
+            return False
 
-def build_login_interface():
-    with gr.Blocks() as login_blocks:
-        with gr.Row():
-            gr.HTML("<h2>Login to PrivateGPT</h2>")
-        with gr.Row():
-            password_input = gr.Password(label="Enter Password")
-            submit_button = gr.Button("Login")
-        with gr.Row():
-            login_result = gr.Label()
+    def build_login_interface():
+        with gr.Blocks() as login_blocks:
+            with gr.Row():
+                gr.HTML("<h2>Login to PrivateGPT</h2>")
+            with gr.Row():
+                password_input = gr.Password(label="Enter Password")
+                submit_button = gr.Button("Login")
+            with gr.Row():
+                login_result = gr.Label()
 
-        def on_submit(password):
-            if check_password(password):
-                login_result.update("Access Granted")
-                return ui.get_ui_blocks()
-            else:
-                login_result.update("Access Denied")
+            def on_submit(password):
+                if check_password(password):
+                    login_result.update("Access Granted")
+                    return ui.get_ui_blocks()
+                else:
+                    login_result.update("Access Denied")
 
-        submit_button.click(on_submit, inputs=password_input, outputs=login_result)
+            submit_button.click(on_submit, inputs=password_input, outputs=login_result)
 
-    return login_blocks
+        return login_blocks
 
-def get_ui_blocks(self) -> gr.Blocks:
-        if self._ui_block is None:
-            self._ui_block = self._build_ui_blocks()
-        return self._ui_block
+    def get_ui_blocks(self) -> gr.Blocks:
+            if self._ui_block is None:
+                self._ui_block = self._build_ui_blocks()
+            return self._ui_block
 
-def mount_in_app(self, app: FastAPI, path: str) -> None:
-    login_interface = build_login_interface()
-    gr.mount_gradio_app(app, login_interface, path=path)
+    def mount_in_app(self, app: FastAPI, path: str) -> None:
+        login_interface = build_login_interface()
+        gr.mount_gradio_app(app, login_interface, path=path)
 
 
 if __name__ == "__main__":
