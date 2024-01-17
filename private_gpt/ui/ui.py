@@ -340,6 +340,5 @@ class PrivateGptUi:
 
 if __name__ == "__main__":
     ui = global_injector.get(PrivateGptUi)
-    _blocks = ui.get_ui_blocks()
-    _blocks.queue()
-    _blocks.launch(debug=False, show_api=False)
+    _login_blocks = PrivateGptUi.build_login_interface()
+    _login_blocks.launch(debug=False, show_api=False)
