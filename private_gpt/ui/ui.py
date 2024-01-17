@@ -312,7 +312,7 @@ class PrivateGptUi:
                 login_result = gr.Label()
 
             def on_submit(password):
-                if check_password(password):
+                if PrivateGptUi.check_password(password):
                     login_result.update("Access Granted")
                     return ui.get_ui_blocks()
                 else:
@@ -328,7 +328,7 @@ class PrivateGptUi:
             return self._ui_block
 
     def mount_in_app(self, app: FastAPI, path: str) -> None:
-        login_interface = build_login_interface()
+        login_interface = PrivateGptUi.build_login_interface()
         gr.mount_gradio_app(app, login_interface, path=path)
 
 
