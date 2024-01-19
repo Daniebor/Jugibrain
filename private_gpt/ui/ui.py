@@ -32,8 +32,6 @@ SOURCES_SEPARATOR = "\n\n Sources: \n"
 
 MODES = ["Query Docs", "Search in Docs", "LLM Chat"]
 
-PASSWORD = "admin_jugiBrain2023!"
-
 
 class Source(BaseModel):
     file: str
@@ -293,56 +291,21 @@ class PrivateGptUi:
                         additional_inputs=[mode, upload_button, system_prompt_input],
                     )
         return blocks
-    
-
-    def check_password(input_password: str):
-        if input_password == PASSWORD:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def build_login_interface(main_ui_blocks):
-        is_logged_in = False
-
-        with gr.Blocks() as login_blocks:
-            with gr.Row(visible=lambda: not is_logged_in):
-                gr.HTML("<h2>Login to PrivateGPT</h2>")
-                password_input = gr.Textbox(label="Enter Password", type="password")
-                submit_button = gr.Button("Login")
-                login_result = gr.Text()
-
-            # Place the main UI components here but initially set them to invisible
-            with gr.Row(visible=lambda: is_logged_in):
-                # Assuming _build_ui_blocks() returns a gr.Blocks object
-                main_ui_blocks()
-
-            def on_submit(password):
-                nonlocal is_logged_in
-                if password == PASSWORD:
-                    is_logged_in = True
-                    login_result.update("")
-                    return "Login successful. Accessing main UI..."
-                else:
-                    return "Access Denied"
-
-            submit_button.click(on_submit, inputs=password_input, outputs=login_result)
-
-        return login_blocks
 
     def get_ui_blocks(self) -> gr.Blocks:
-            if self._ui_block is None:
-                self._ui_block = self._build_ui_blocks()
-            return self._ui_block
-    
+        if self._ui_block is None:
+            self._ui_block = self._build_ui_blocks()
+        return self._ui_block
+
     def mount_in_app(self, app: FastAPI, path: str) -> None:
-        main_ui_blocks = self.get_ui_blocks
-        login_interface = PrivateGptUi.build_login_interface(main_ui_blocks)
-        gr.mount_gradio_app(app, login_interface, path=path)
+        blocks = self.get_ui_blocks()
+        blocks.queue()
+        logger.info("Mounting the gradio UI, at path=%s", path)
+        gr.mount_gradio_app(app, blocks, path=path)
 
 
 if __name__ == "__main__":
     ui = global_injector.get(PrivateGptUi)
-    _ui_blocks = ui.get_ui_blocks()
-    _login_blocks = PrivateGptUi.build_login_interface(_ui_blocks)
-    _login_blocks.launch(debug=False, show_api=False)
+    _blocks = ui.get_ui_blocks()
+    _blocks.queue()
+    _blocks.launch(debug=False, show_api=False)
